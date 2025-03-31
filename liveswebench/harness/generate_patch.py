@@ -12,10 +12,9 @@ def generate_patch(task: TaskInstance, tool_name: str, task_type: TaskType):
     repo = get_repo(task.repo_name)
     repo.clean_ignore()
 
-    task_data_path = task.task_data_path / tool_name
-    task_data_path.mkdir(parents=True, exist_ok=True)
-
     patch_file = get_patch_path(task, task_type, tool_name)
+
+    patch_file.parent.mkdir(parents=True, exist_ok=True)
 
     if patch_file.exists():
         print(f"Patch file {patch_file} already exists, would you like to overwrite it? (y/n)")

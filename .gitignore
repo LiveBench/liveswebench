@@ -13,3 +13,4 @@ docker
 *.json
 *.jsonl
 agent_edit_prompt.txt
+liveswebench/data

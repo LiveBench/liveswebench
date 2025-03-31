@@ -3,7 +3,6 @@ import os
 import datetime
 from pathlib import Path
 from typing_extensions import override
-from liveswebench.harness.util import construct_partial_patch, extract_hunks_from_patch, filter_patch_by_operation
 from liveswebench.util.repo import get_repo
 from dataclasses import dataclass, field
 from enum import Enum
@@ -65,7 +64,7 @@ def get_patch_path(task: TaskInstance, task_type: TaskType, tool_name: str, omit
     If omit_timestamp is True, the timestamp is omitted.
     """
     timestamp = "" if omit_timestamp else f"_{datetime.datetime.now().strftime('%Y%m%d')}"
-    return task.task_data_path / f"{tool_name}_{task_type}_patch{timestamp}.patch"
+    return task.task_data_path / tool_name / f"{tool_name}_{task_type}_patch{timestamp}.patch"
 
 def get_log_path(task: TaskInstance, task_type: TaskType, tool_name: str, timestamp: str | None = None, omit_timestamp: bool = False) -> Path:
     """
@@ -77,7 +76,7 @@ def get_log_path(task: TaskInstance, task_type: TaskType, tool_name: str, timest
         ts = "" if omit_timestamp else f"_{datetime.datetime.now().strftime('%Y%m%d')}"
     else:
         ts = f"_{timestamp}"
-    return task.task_data_path / f"{tool_name}_{task_type}{ts}.log"
+    return task.task_data_path / tool_name / f"{tool_name}_{task_type}{ts}.log"
 
 def get_partial_gold_patch(task: TaskInstance, task_type: TaskType) -> str:
     if task_type == TaskType.AGENT:
@@ -85,6 +84,7 @@ def get_partial_gold_patch(task: TaskInstance, task_type: TaskType) -> str:
     
     exclude_patch = task.get_ground_truth_patch(task_type)
     
+    from liveswebench.harness.util import construct_partial_patch
     partial_gold_patch = construct_partial_patch(
         task.gold_patch,
         exclude_patch
@@ -98,6 +98,7 @@ def get_removal_patch_for_task(task: TaskInstance, task_type: TaskType) -> str |
         return None
     
     ground_truth_patch = task.get_ground_truth_patch(task_type)
+    from liveswebench.harness.util import filter_patch_by_operation
     removal_patch = filter_patch_by_operation(
         ground_truth_patch,
         operation='-'
@@ -107,6 +108,7 @@ def get_removal_patch_for_task(task: TaskInstance, task_type: TaskType) -> str |
     
 def get_relevant_files_for_task(task: TaskInstance, task_type: TaskType) -> list[str] | None:
     ground_truth_patch = task.get_ground_truth_patch(task_type)
+    from liveswebench.harness.util import extract_hunks_from_patch
     hunks = extract_hunks_from_patch(ground_truth_patch)
     if not hunks:
         return None

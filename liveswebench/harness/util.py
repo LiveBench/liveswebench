@@ -3,6 +3,10 @@ from liveswebench.util.util import execute_commands, execute_background_command_
 import subprocess
 import re
 from liveswebench.util.repo import get_repo, Repo
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from liveswebench.util.tasks import TaskInstance
 
 def execute_test_command(command_config: list[str] | dict[str, list[str] | dict[str, list[str]]], repo_name: str, task_num: int, repo_path: str, out_file: str):
     """
@@ -48,17 +52,23 @@ def execute_test_command(command_config: list[str] | dict[str, list[str] | dict[
             command = [s.replace("pnpm", "npx pnpm@8") for s in command]
         execute_commands(command, cwd=repo_path, out_file=out_file)
 
-def run_tests(repo_name: str, task_num: int, out_file: str):
-    repo = get_repo(repo_name)
-    task_path = repo.task_path / str(task_num)
-    test_patch = open(task_path / "test_patch.patch", "r").read()
+def run_tests(task: "TaskInstance", out_file: str):
+    """
+    Execute test commands for a task.
+    
+    Args:
+        task: The task instance
+        out_file: Output file for logs
+    """
+    repo = get_repo(task.repo_name)
+    test_patch = task.test_patch
 
     pre_test_cmd = repo.pre_test_cmd
     if pre_test_cmd:
         print("Running pre-test commands...")
-        if repo_name == 'freeCodeCamp' and task_num == 54128:
+        if task.repo_name == 'freeCodeCamp' and task.task_num == 54128:
             pre_test_cmd = [s.replace("pnpm", "npx pnpm@9") for s in pre_test_cmd]
-        elif repo_name == 'freeCodeCamp' and task_num <= 54812:
+        elif task.repo_name == 'freeCodeCamp' and task.task_num <= 54812:
             pre_test_cmd = [s.replace("pnpm", "npx pnpm@8") for s in pre_test_cmd]
         execute_commands(pre_test_cmd, cwd=str(repo.repo_path), out_file=out_file)
 
@@ -66,12 +76,12 @@ def run_tests(repo_name: str, task_num: int, out_file: str):
 
     if "default" in repo.test_cmd:
         print("Running default test commands...")
-        execute_commands(repo.test_cmd["default"], cwd=repo.repo_path, out_file=out_file)
+        execute_commands(repo.test_cmd["default"], cwd=str(repo.repo_path), out_file=out_file)
 
     for identifier_str in repo.test_cmd:
         if identifier_str != "default" and identifier_str in test_patch:
             print(f"Running test commands for {identifier_str}...")
-            execute_test_command(repo.test_cmd[identifier_str], repo_name, task_num, repo.repo_path, out_file)
+            execute_test_command(repo.test_cmd[identifier_str], task.repo_name, task.task_num, str(repo.repo_path), out_file)
     
     if repo.test_regex_cmd:
         for regex in repo.test_regex_cmd:
@@ -83,10 +93,10 @@ def run_tests(repo_name: str, task_num: int, out_file: str):
                     command_config = {}
                     command_config["server"] = repo.test_regex_cmd[regex]["server"]
                     command_config["test"] = [s.format(groups=groups) for s in repo.test_regex_cmd[regex]["test"]]
-                    execute_test_command(command_config, repo_name, task_num, repo.repo_path, out_file)
+                    execute_test_command(command_config, task.repo_name, task.task_num, str(repo.repo_path), out_file)
                 else:
                     test_cmd = [s.format(groups=groups) for s in repo.test_regex_cmd[regex]]
-                    execute_test_command(test_cmd, repo_name, task_num, repo.repo_path, out_file)
+                    execute_test_command(test_cmd, task.repo_name, task.task_num, str(repo.repo_path), out_file)
 
 def extract_hunks_from_patch(patch_content: str) -> dict[str, dict[str, str | bool | list[str]]]:
     """

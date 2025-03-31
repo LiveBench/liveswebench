@@ -31,7 +31,7 @@ def patch_and_test(task: TaskInstance, tool_name: str, patch_file: str | Path | 
         check_and_revert_patch(task.test_patch, repo=repo)
 
         # Apply test patch
-        print(f"Applying test patch: {task.test_patch}")
+        print(f"Applying test patch")
         try:
             repo.apply_patch(task.test_patch)
         except Exception as e:
@@ -82,7 +82,7 @@ def patch_and_test(task: TaskInstance, tool_name: str, patch_file: str | Path | 
     # print current status
     print(repo.git_repo.git.status())
 
-    run_tests(task.repo_name, task.task_num, str(out_file.resolve()))
+    run_tests(task, str(out_file.resolve()))
 
     print(f"Finished testing task {task.task_num} for repository {task.repo_name}")
 
