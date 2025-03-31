@@ -1,0 +1,13 @@
+[build-system]
+requires = ['setuptools>=75', 'wheel']
+build-backend = 'setuptools.build_meta'
+
+[tool.basedpyright]
+reportUnusedCallResult = false
+reportUnknownMemberType = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"

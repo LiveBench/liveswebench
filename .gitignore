@@ -1,0 +1,15 @@
+.DS_Store
+.env
+__pycache__/
+.venv
+*.pyc
+*.egg-info
+dist
+.aider.*
+*.csv
+docker
+*.jpg
+*.png
+*.json
+*.jsonl
+agent_edit_prompt.txt

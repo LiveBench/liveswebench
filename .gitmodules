@@ -1,0 +1,3 @@
+[submodule "liveswebench/agents/SWE-agent"]
+	path = liveswebench/agents/SWE-agent
+	url = https://github.com/SWE-agent/SWE-agent.git
