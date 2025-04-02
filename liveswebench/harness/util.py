@@ -179,6 +179,8 @@ def construct_partial_patch(original_patch: Path | str, exclude_patch: Path | st
 
     original_patch and exclude_patch are either Path objects, pointing to patch files, or strings containing the patch content.
     """
+    if original_patch == exclude_patch:
+        return ""
     if isinstance(original_patch, Path):
         if not original_patch.exists():
             print(f"Original patch file {original_patch} does not exist")

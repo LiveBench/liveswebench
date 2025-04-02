@@ -80,8 +80,8 @@ def get_log_path(task: TaskInstance, task_type: TaskType, tool_name: str, timest
 
 def get_partial_gold_patch(task: TaskInstance, task_type: TaskType) -> str:
     if task_type == TaskType.AGENT:
-        return task.gold_patch
-    
+        return ""
+
     exclude_patch = task.get_ground_truth_patch(task_type)
     
     from liveswebench.harness.util import construct_partial_patch
